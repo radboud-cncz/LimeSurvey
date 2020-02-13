@@ -101,18 +101,28 @@ class LSSodium {
 	 * 
 	 * Decrypt encrypted string.
 	 * @param string $sEncryptedString Encrypted string to decrypt
-	 * @param bool $bReturnFalseIfError false by default. If TRUE, return false in case of error (bad decryption). Else, return given $encryptedInput value
-	 * @return string Return decrypted value (string or unsezialized object) if suceeded. Return FALSE if an error occurs (bad password/salt given) or inpyt encryptedString
+	 * @param bool $bReturnInputIfError FALSE by default. Throw Exception in case of error (bad input/password/salt). If TRUE return given $sEncryptedString.
+     *             Should ONLY set to TRUE before validation of values in LSActiveRecord->encryptSave() because there values could be unencrypted strings. 
+	 * @return string Return decrypted value (string or unsezialized object) if suceeded. Throw exception if an error occurs (bad input/password/salt) or given $sEncryptedString
 	 */
-	public function decrypt($sEncryptedString, $bReturnFalseIfError=false){ 	
+	public function decrypt($sEncryptedString, $bReturnInputIfError=false){ 	
         if ($this->bLibraryExists === true){
-            if (!empty($sEncryptedString) && $sEncryptedString != 'null'){
+            // only decrypt if input is >= 64 chars after base64 decoding, else it's not an encrypted value
+            if (!empty($sEncryptedString) && $sEncryptedString != 'null' && strlen(base64_decode($sEncryptedString)) >= 64){
                 $plaintext = ParagonIE_Sodium_Compat::crypto_sign_open(base64_decode($sEncryptedString), $this->sEncryptionPublicKey);
                 if ($plaintext === false){
-                    throw new SodiumException(sprintf(gT("Wrong decryption key! Decryption key has changed since this data were last saved, so data can't be decrypted. Please consult our manual at %s.", 'unescaped'), 'https://manual.limesurvey.org/Data_encryption#Errors'));
+                    // throw an error if decryption failed but return given $sEncryptedString
+                    // if decryption failed during validation with $bReturnInputIfError set to TRUE
+                    if ($bReturnInputIfError === false){
+                        throw new SodiumException(sprintf(gT("Wrong decryption key! Decryption key has changed since this data were last saved, so data can't be decrypted. Please consult our manual at %s.", 'unescaped'), 'https://manual.limesurvey.org/Data_encryption#Errors'));
+                    } else {
+                        return $sEncryptedString;
+                    }
                 } else {
                     return $plaintext;
                 }
+            } else {
+                return $sEncryptedString;
             }
         } else {
             return $sEncryptedString;
@@ -122,7 +132,7 @@ class LSSodium {
  
 	/**
 	 * 
-	 * Write encryption key to version.php config file
+	 * Write encryption key to security.php config file
 	 */
 	protected function generateEncryptionKeys(){			 	
         $sEncryptionKeypair   = ParagonIE_Sodium_Compat::crypto_sign_keypair();

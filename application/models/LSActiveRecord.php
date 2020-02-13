@@ -387,16 +387,20 @@ class LSActiveRecord extends CActiveRecord
     /**
      * Encrypt values before saving to the database
      */
-    public function encryptSave($runValidation=false)
+    public function encryptSave($runValidation=true)
     {
         // run validation on attribute values before encryption take place, it is impossible to validate encrypted values
         if ($runValidation){
+            // decrypt attribute values before validation, IMPORTANT to set $bReturnInputIfError to TRUE to ensure to handle unencrypted values
+            // values must be decrypted to pass through the validation rules of the models but new values are not encrypted at this moment
+            $this->decryptEncryptAttributes('decrypt', $bReturnInputIfError=true);
+            // validate attribute values
             if(!$this->validate()) {
                 return false;
             }  
         }
         
-        // encrypt attributes
+        // encrypt attribute values
         $this->decryptEncryptAttributes('encrypt');
 
         // call save() method  without validation, validation is already done ( if needed )
@@ -406,7 +410,7 @@ class LSActiveRecord extends CActiveRecord
     /**
      * Encrypt/decrypt values
      */
-    public function decryptEncryptAttributes($action = 'decrypt')
+    public function decryptEncryptAttributes($action = 'decrypt', $bReturnInputIfError=false)
     {
         // load sodium library
         $sodium = Yii::app()->sodium;
@@ -416,13 +420,13 @@ class LSActiveRecord extends CActiveRecord
             $aParticipantAttributes = CHtml::listData(ParticipantAttributeName::model()->findAll(array("select" => "attribute_id", "condition" => "encrypted = 'Y' and core_attribute <> 'Y'")), 'attribute_id', '');
             foreach ($aParticipantAttributes as $attribute => $value) {
                 if (array_key_exists($this->attribute_id, $aParticipantAttributes)) {
-                    $this->value = $sodium->$action($this->value);
+                    $this->value = $sodium->$action($this->value, $bReturnInputIfError);
                 }
             }
         } else {
             $attributes = $this->encryptAttributeValues($this->attributes, true, false);
             foreach ($attributes as $key => $attribute) {
-                $this->$key = $sodium->$action($attribute);
+                $this->$key = $sodium->$action($attribute, $bReturnInputIfError);
             }
         }
     }
