@@ -64,6 +64,8 @@ class LimeSurveyFileManager extends Survey_Common_Action
             'Cancel copy' => gT('Cancel copy'),
             'Move' => gT('Move'),
             'Copy' => gT('Copy'),
+            'move' => gT('Move'),
+            'copy' => gT('Copy'),
             'Upload a file' => gT('Upload a file'),
             'File could not be uploaded' => gT('File could not be uploaded'),
             'Drag and drop here, or click once to start uploading' => gT('Drag and drop here, or click once to start uploading'),
@@ -82,7 +84,15 @@ class LimeSurveyFileManager extends Survey_Common_Action
             'Copy file' => gT('Copy file'),
             'Move file' => gT('Move file'),
             'Allowed file extensions' => gT('Allowed file extensions'),
-            'File formats' => '.'.gT(implode(", .", $this->allowedFileExtensions)) 
+            'File formats' => '.'.gT(implode(", .", $this->allowedFileExtensions)) ,
+            'You are sure you want to delete' => gT('You are sure you want to delete'),
+            'Close' => gT('Close'),
+            'Continue' => gT('Continue'),
+            'Cancel transit of file' => gT('Cancel transit of file'),
+            'A .zip archive will be automatically unpacked on the server' => gT('A .zip archive will be automatically unpacked on the server'),
+            'Download' => gT('Download'),
+            'Upload' => gT('Upload'),
+            'An error has occured and the selected files ycould not be downloaded.' => gT('An error has occured and the selected files ycould not be downloaded.'),
         ];
 
         Yii::app()->getClientScript()->registerPackage('filemanager');

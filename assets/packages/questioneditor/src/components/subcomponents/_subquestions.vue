@@ -35,7 +35,7 @@
                             {{'Subquestion'|translate}}
                         </div>
                         <div class="scoped-relevance-block">
-                            {{'Condition'}}
+                            {{'Condition'|translate}}
                         </div>
                         <div class="scoped-actions-block" v-show="!readonly">
                             <div>&nbsp;</div>

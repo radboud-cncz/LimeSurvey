@@ -390,7 +390,12 @@ class questiongroups extends Survey_Common_Action
                 'Mandatory' => gT('Mandatory'),
                 'Encrypted' => gT('Encrypted'),
                 'Actions' => gT('Actions'),
-               ]
+                'Create Question group' => gT('Create Question group'),
+                'Toggle dark mode' => gT('Toggle dark mode'),
+                'More Languages' => gT('More Languages'),
+                'Page overview' => gT('Page overview'),
+                'Toggle source mode' => gT('Toggle source mode'),
+            ]
         ];
 
         $this->_renderWrappedTemplate('survey/QuestionGroups', 'group_view', $aData);

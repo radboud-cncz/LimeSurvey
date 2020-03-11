@@ -31,7 +31,7 @@
                             <div>{{"Assessment value" | translate}}</div>
                         </div>
                         <div class="scoped-content-block">
-                            <div>{{"Answeroption" | translate}}</div>
+                            <div>{{"Answer option" | translate}}</div>
                         </div>
                         <div class="scoped-actions-block" v-show="!readonly">
                             <div>&nbsp;</div>

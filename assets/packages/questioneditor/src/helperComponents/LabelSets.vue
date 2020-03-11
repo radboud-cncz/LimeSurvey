@@ -102,7 +102,7 @@ export default {
                 </div>
                 <div class="row scoped-descriptionrow">
                     <div class="col-xs-3">
-                        {{"Sortorder"|translate}}
+                        {{"Sort order"|translate}}
                     </div>
                     <div class="col-xs-3">
                         {{typekey|translate}}

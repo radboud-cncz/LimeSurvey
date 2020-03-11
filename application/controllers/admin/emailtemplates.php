@@ -59,6 +59,13 @@ class emailtemplates extends Survey_Common_Action
                 'Validate Expressions' => gT('Validate ExpressionScript'),
                 'Reset to default' => gT('Reset to default'),
                 'Add attachment to template' => gT('Add attachment to template'),
+                'Select attachement' => gT('Select attachement'),
+                'To add files please open the resources tab, or ask an administrator to add files to the survey folder' => gT('To add files please open the resources tab, or ask an administrator to add files to the survey folder'),
+                'No files in the survey folder' => gT('No files in the survey folder'),
+                'Save selection' => gT('Save selection'),
+                'Toggle source mode' => gT('Toggle source mode'),
+                'Toggle dark mode' => gT('Toggle dark mode'),
+                'More Languages' => gT('More Languages'),
                ]
         ];
         $this->_renderWrappedTemplate('emailtemplates', 'emailtemplatescomponent', $aData);

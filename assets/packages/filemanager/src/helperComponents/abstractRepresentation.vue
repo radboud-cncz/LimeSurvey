@@ -48,10 +48,7 @@ export default {
       if (!this.isBlocked) {
         this.$dialog
           .confirm(
-            this.translate("You are sure you want to delete %s").replace(
-              "%s",
-              file.shortName
-            )
+            this.translate("You are sure you want to delete")+" "+file.shortName
           )
           .then(dialog => {
               this.loadingState = true;
