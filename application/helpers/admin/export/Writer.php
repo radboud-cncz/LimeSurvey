@@ -310,11 +310,21 @@ abstract class Writer implements IWriter
             $oResponse->decrypt();
             $aResponse = array_merge($aResponse, $oResponse->attributes);
 
+            // Includ timings if table exists.
+            if (tableExists(sprintf("{survey_%d_timings}", $oSurvey->id))) {
+                $timings = SurveyTimingDynamic::model($oSurvey->id);
+                $timings->setAttributes($response, false);
+                $aResponse = array_merge($aResponse, $timings->attributes);
+            }
+
             $elementArray = array();
 
             foreach ($oOptions->selectedColumns as $column) {
                 $value = $aResponse[$column];
-                if (isset($oSurvey->fieldMap[$column]) && $oSurvey->fieldMap[$column]['type'] != 'answer_time' && $oSurvey->fieldMap[$column]['type'] != 'page_time' && $oSurvey->fieldMap[$column]['type'] != 'interview_time') {
+                if (isset($oSurvey->fieldMap[$column])
+                    && $oSurvey->fieldMap[$column]['type'] != 'answer_time'
+                    && $oSurvey->fieldMap[$column]['type'] != 'page_time'
+                    && $oSurvey->fieldMap[$column]['type'] != 'interview_time') {
                     switch ($oOptions->answerFormat) {
                         case 'long':
                             $elementArray[] = $this->getLongAnswer($oSurvey, $oOptions, $column, $value);
