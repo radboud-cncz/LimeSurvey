@@ -28083,10 +28083,10 @@
 	/**
 	 * A method to use the implemented notifier, via ajax or javascript
 	 *
-	 * @param text string  | The text to be displayed
+	 * @param text string    | The text to be displayed
 	 * @param classes string | The classes that will be put onto the inner container
-	 * @param styles object | An object of css-attributes that will be put onto the inner container
-	 * @param customOptions | possible options are:
+	 * @param styles object  | An object of css-attributes that will be put onto the inner container
+	 * @param customOptions  | possible options are:
 	 *                         useHtml (boolean) -> use the @text as html
 	 *                         timeout (int) -> the timeout in milliseconds until the notifier will fade/slide out
 	 *                         inAnimation (string) -> The jQuery animation to call for the notifier [fadeIn||slideDown]
@@ -28147,11 +28147,12 @@
 	      }
 
 	      $('#notif-container').clone().attr('id', newID).css({
-	        display: 'none',
+	        display: 'flex',
+	        'flex-direction': 'row',
+	        'justify-content': 'center',
 	        top: 8 * this.getCount() + "%",
-	        position: 'fixed',
-	        left: "15%",
-	        width: "70%",
+	        //  left : "15%",
+	        width: "50%",
 	        'z-index': 3500
 	      }).appendTo($('#notif-container').parent()).html(container); // using the option inAnimation as funtion of jquery
 
@@ -28175,6 +28176,7 @@
 
 	  return NotifyFader;
 	}();
+
 	window.LS.LsGlobalNotifier = window.LS.LsGlobalNotifier || new NotifyFader();
 	function notifyFader (text, classes, styles, customOptions) {
 	  window.LS.LsGlobalNotifier.create(text, classes, styles, customOptions);
