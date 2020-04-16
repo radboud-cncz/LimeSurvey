@@ -62,9 +62,7 @@ class NotifyFader {
                 display: 'flex',
                 'flex-direction': 'row',
                 'justify-content': 'center',
-                top : (8*((this.getCount())))+"%",
-              //  left : "15%",
-                width : "50%",
+                width: "100%",
                 'z-index':3500
             })
             .appendTo($('#notif-container').parent())
