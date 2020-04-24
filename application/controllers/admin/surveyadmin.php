@@ -507,7 +507,6 @@ class SurveyAdmin extends Survey_Common_Action
 
         // We get the list of templates
 
-        //$setting_entry = 'last_question_gid'.Yii::app()->user->getId().'_'.$iSurveyID;
         // TODO: getGlobalSetting() DEPRECATED
         $lastquestiongroup = getGlobalSetting($setting_entry);
 
@@ -531,6 +530,12 @@ class SurveyAdmin extends Survey_Common_Action
         $user = User::model()->findByPk(App()->session['loginID']);
         $aData['owner'] = $user->attributes;
         $this->_renderWrappedTemplate('survey', array(), $aData);
+
+        $twigVariables = [
+            'sitename' => App()->getConfig("sitename"),
+
+        ];
+        //App()->twigRenderer->renderTemplateFromFile('mainLayout.twig', $twigVariables, false);
     }
 
     /**

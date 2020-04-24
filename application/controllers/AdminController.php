@@ -438,7 +438,7 @@ class AdminController extends LSYii_Controller
         $aData['firebug'] = useFirebug();
 
         if (!empty(Yii::app()->session['dateformat'])) {
-                    $aData['formatdata'] = getDateFormatData(Yii::app()->session['dateformat']);
+            $aData['formatdata'] = getDateFormatData(Yii::app()->session['dateformat']);
         }
 
         // Register admin theme package with asset manager
@@ -446,11 +446,6 @@ class AdminController extends LSYii_Controller
 
         $aData['sAdmintheme'] = $oAdminTheme->name;
         $aData['aPackageScripts'] = $aData['aPackageStyles'] = array();
-
-            //foreach ($aData['aPackageStyles'] as &$filename)
-            //{
-                //$filename = str_replace('.css', '-rtl.css', $filename);
-            //}
 
         $sOutput = $this->renderPartial("/admin/super/header", $aData, true);
 

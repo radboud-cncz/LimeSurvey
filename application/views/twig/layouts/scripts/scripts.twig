@@ -1,0 +1,13 @@
+{% block scripts %}
+    <div id="beginScripts">
+    </div>
+    <!-- TODO: How to display widgets? -->
+    <?php $this->widget('ext.FlashMessage.FlashMessage'); ?>
+
+    <?php App()->getClientScript()->registerScript("HeaderVariables",
+    'var frameSrc = "/login";
+    '.(isset($formatdata) ? 
+    ' var userdateformat="'.$formatdata['jsdate'].'";'
+   .'var userlanguage="'.$adminlang.'";'
+   : '' ), LSYii_ClientScript::POS_HEAD); ?>
+{% endblock %}

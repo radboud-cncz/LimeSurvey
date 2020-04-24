@@ -1,0 +1,18 @@
+{% block header %}
+    {{ include ('./header.twig') }}
+{% endblock %}
+{% block body %}
+    {% block scripts %}
+        {{ include('scripts/scripts') }}
+    {% endblock %}
+    
+    {% block loadingWrapper %}
+        {{ include('content/loadingWrapper.twig') }}
+
+    {% block adminMenuBar %}
+        {{ include('adminmenu.twig') }}
+    {% endblock %}
+{% endblock %}
+
+{% block footer %}
+{% endblock %}

@@ -1,0 +1,154 @@
+{% block adminMenuBar %}
+<nav class="navbar">
+    <div class="navbar-header">
+        <button class="navbar-toggle hidden-md hidden-lg" type="button" data-toggle="collapse" data-target="#small-screens-menus">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+        <!-- <?php echo $this->createUrl("/admin/"); ?> -->
+        <!--  <?php echo $sitename; ?> -->
+        <a class="navbar-brand" href="{{ adminUrl }}">{{ sitename }}</a>
+
+        <!-- Only on xs screens -->
+        <div class="collapse navbar-collapse pull-left hidden-sm hidden-md hidden-lg" id="small-screens-menus">
+            <ul class="nav navbar-nav hidden-sm hidden-md hidden-lg small-screens-menus">
+                <li>
+                    <br>
+                <li>
+                
+                <!-- active surveys -->
+                {% if activeSurveyCount > 0} %}
+                    <li>
+                        <a href="{{ ActiveSurveysUrl }}">{{ 'Active Surveys' | translate }}>
+                            <span class="badge badge-success">{{ activeSurveyCount }}</span>
+                        </a>
+                    </li>
+                {% endif %}
+
+                <!-- List surveys -->
+                <li>
+                    <a href="{{ listSurveysUrl }}">
+                        {{ 'List surveys' | translate }}
+                    </a>
+                </li>
+
+                <!-- Logout -->
+                <li>
+                    <a href="{{ LogoutUrl }}">
+                        {{ 'Logout' | translate }}
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="collapse navbar-collapse js-navbar-collapse pull-right ls--selector--configuration--menu">
+            <ul class="nav navbar-nav navbar-right">
+                <!-- Help menu -->
+                {{ include('admin.super.help.menu.twig') }}
+
+                <!-- Configuration menu -->
+                {{ include('admin.super.configuration.menu.twig') }}
+
+                <!-- Surveys menus -->
+                {{ include('admin.super.surveys.menu.twig') }}
+
+                <!-- user menu -->
+                <!-- active surverys -->
+                {% if activeSurveyCount > 0 %}
+                    <li>
+                        <a href="{{ ActiveSurveyUrl}}">
+                            {{ 'Active surveys' | translate }}
+                            <span class="badge badge-success">
+                                {{ activeSurveyCount }}
+                            </span>
+                        </a>
+                    </li>
+                {% endif %}
+
+                <!-- Extra menues from plugins -->
+                {% for 'extraMenu' in extraMenus %}
+                    <li class="dropdown">
+                        {% if extraMenu.isDropDown() %}
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                {% set MenuLabel = extraMenu.getLabel() }
+                                {{ MenuLabel }}
+                                &nbsp;
+                                <span class="caret"></span>
+                            </a>
+                            {% set MenuItems = extraMenu.getMenuItems() %}
+                            <ul class="dropdown-menu" role="menu">
+                                {% for 'menuItem' in MenuItems %}
+                                    {% if menuItem.isDivider() }
+                                        <li class="divider"></li>
+                                    {% else if menuItem.isSmallText() %}
+                                        {% set menuLabel = menuItem.getLabel() %}
+                                        <li class="dropdown-header">{{ menuLabel }}</li>
+                                    {% else }
+                                        {% set menuItemHref = menuItem.getHref() }
+                                        <li>
+                                            <a href="{{ menuItemHref }}">
+                                            <!-- Spit out icon if present -->
+                                            { set hasIcon = menuItem.getIconClass != ''}
+                                            {% if hasIcon %}
+                                                {% set menuIconClass = menuItem.getIconClass %}
+                                                <span class="{{ menuIconClass }}">
+                                                    &nbsp;
+                                                </span>
+                                            {% endif %}
+                                            {% set menuItemLabel = menuItem.getLabel()}
+                                            {{ menuItemLabel }}
+                                            </a>
+                                        </li>
+                                    {{ % endif % }}
+                                {{ % endfor %}}
+                            </ul>
+                        {{ else }}
+                            {{ set menuItemHref = menu.getHref() }}
+                            {{ set menuItemLabel = menu.getLabel() }}
+                            <a href="{{ menuItemHref }}">
+                                {{ menuItemLabel }}
+                            </a>
+                    {{% endif }}
+                </li>
+            {{% endfor %}}
+
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria.expanded="false">
+                    <span class="icon-user"></span>
+                    <!-- Yii::app()->session['user'] -->
+                    {{ User }}
+                    <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu" role="menu">
+                    <li>
+                        <a href="{{ PersonalSettingsUrl }}">
+                            {{ 'My account' | translate }}
+                        </a>
+                    </li>
+                    <li class="divider"></li>
+
+                    <!-- Logout -->
+                    <li>
+                        <a href="{{ LogoutUrl }}">
+                            {{ 'Logout' | translate }}
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+            <!-- Admin Notification System -->
+            {{ AdminNotifications }}
+        </ul>
+    </div>
+
+    {{ include('maintenenceMode.twig') }}
+    
+
+
+
+
+
+
+{% endblock %}

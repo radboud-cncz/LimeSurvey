@@ -23,9 +23,6 @@
 * @author        LimeSurvey Team
 * @method        void index()
 */
-
-
-
 class Survey_Common_Action extends CAction
 {
     public function __construct($controller = null, $id = null)
@@ -335,7 +332,6 @@ class Survey_Common_Action extends CAction
         $basePath = (string) Yii::getPathOfAlias('application.views.admin.super');
 
         if ($sRenderFile == false) {
-
             if (!empty($aData['surveyid'])) {
                 //todo REFACTORING this should be moved into LSBaseController->beforeRender()
                 $aData['oSurvey'] = Survey::model()->findByPk($aData['surveyid']);
