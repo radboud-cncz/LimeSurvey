@@ -43,6 +43,7 @@ $layoutHelper->notifications();
 
     echo '</div>';
 
+echo $test1234;
 
 // Footer
 if (!isset($aData['display']['endscripts']) || $aData['display']['endscripts'] !== false) {

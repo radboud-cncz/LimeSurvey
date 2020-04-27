@@ -529,13 +529,13 @@ class SurveyAdmin extends Survey_Common_Action
 
         $user = User::model()->findByPk(App()->session['loginID']);
         $aData['owner'] = $user->attributes;
-        $this->_renderWrappedTemplate('survey', array(), $aData);
+        //$this->_renderWrappedTemplate('survey', array(), $aData);
 
         $twigVariables = [
             'sitename' => App()->getConfig("sitename"),
-
+            'faviconUrl' => App()->getConfig('styleurl'),
         ];
-        //App()->twigRenderer->renderTemplateFromFile('mainLayout.twig', $twigVariables, false);
+        App()->twigRenderer->renderViewFromFile('application/views/twig/layouts/mainLayout.twig', $twigVariables, false, false);
     }
 
     /**
