@@ -1,4 +1,5 @@
+{# Base Layout #}
 {% block header %}
-    {% set vars = { 'sitename': sitename, 'faviconUrl' : faviconUrl } %}
-    {% include 'header.twig'  with vars %}
+    {% set HeaderVars = { 'sitename': sitename, 'faviconUrl' : faviconUrl } %}
+    {% include 'header.twig' with HeaderVars %}
 {% endblock %}
