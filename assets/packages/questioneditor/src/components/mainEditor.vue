@@ -24,20 +24,27 @@
                                     </button>
                                 </div>
                             </div>
-                            <lsckeditor
+                           <!-- <lsckeditor
                                 v-if="!questionEditSource"
                                 v-model="currentQuestionQuestion"
                                 :editor="editorQuestionObject"
                                 :config="editorQuestionConfig"
                                 v-on:input="runDebouncedChange"
-                            ></lsckeditor>
-                            <aceeditor
+                            ></lsckeditor> -->
+                            <ckeditor
+                                v-if="questionEditSource"
+                                v-model="currentQuestionQuestion"
+                                :editor="editorQuestionObject"
+                                :config="editorQuestionConfig"
+                                :input="runDebouncedChange">
+                            </ckeditor>
+                            <!--<aceeditor
                                 v-else
                                 v-model="currentQuestionQuestion"
                                 :showLangSelector="false"
                                 :thisId="'questionEditSource'"
                                 v-on:input="runDebouncedChange"
-                            ></aceeditor>
+                            ></aceeditor> -->
                         </div>
                         <div class="col-12 ls-space margin all-5 scope-contains-ckeditor">
                             <div class="ls-flex-row">
@@ -87,14 +94,14 @@
                                     {{ 'Set for all languages' | translate }}
                                 </label>
                             </div>
-                            <aceeditor
+                            <!--<aceeditor
                                 v-model="currentQuestionScript"
                                 :show-lang-selector="false"
                                 base-lang="javascript"
                                 :thisId="'helpEditScript'"
                                 :showLangSelector="true"
                                 v-on:input="runDebouncedChange"
-                            ></aceeditor>
+                            ></aceeditor> -->
                             <p class="alert well">{{"__SCRIPTHELP"|translate}}</p>
                         </div>
                     </div>
@@ -140,6 +147,26 @@ export default {
             editorQuestionObject: ClassicEditor,
             editorQuestionData: "",
             editorQuestionConfig: {
+                toolbar: [
+                    ['heading'],
+                    ['Styles', 'Format', 'Font','FontSize', 'FontColor'],
+                    ['|'],
+                    ['bold','italic', 'underline'],
+                    ['undo','redo'],
+                    ['link',
+                    'alignment',
+                    '|',
+                    'bulletedList',
+                    'numberedList',
+                    'blockQuote',
+                    'insertTable',
+                    '|',
+                    'mediaEmbed',
+                    '|',
+                    'imageUpload',
+                    'selectImage',
+                    'expressions']
+                ],
                 "lsExtension:fieldtype": "editquestion",
                 "lsExtension:ajaxOptions": {
                     surveyid: this.$store.getters.surveyid,
