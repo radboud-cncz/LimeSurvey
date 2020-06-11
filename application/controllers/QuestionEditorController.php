@@ -4,7 +4,11 @@
 class QuestionEditorController extends LSBaseController
 {
 
-
+    /**
+     * Returns access rules as array.
+     * 
+     * @return array
+     */
     public function accessRules()
     {
         return array(
@@ -25,7 +29,8 @@ class QuestionEditorController extends LSBaseController
     /**
      * This part comes from _renderWrappedTemplate
      *
-     * @param string $view
+     * @param string $view View
+     * 
      * @return bool
      */
     protected function beforeRender($view)
@@ -48,9 +53,9 @@ class QuestionEditorController extends LSBaseController
      * Renders the main view for question editor.
      * Main view function prepares the necessary global js parts and renders the HTML for the question editor
      *
-     * @param integer $surveyid
-     * @param integer $gid
-     * @param integer $qid
+     * @param integer $surveyid          Survey ID
+     * @param integer $gid               Group  ID
+     * @param integer $qid               Question ID
      * @param string  $landOnSideMenuTab Name of the side menu tab. Default behavior is to land on structure tab.
      *
      * @return void
@@ -219,7 +224,59 @@ class QuestionEditorController extends LSBaseController
         ]);
     }
 
+    /**
+     * Returns the current Editor Mode for the CKEditor 4. (used in Vue JS)
+     * 
+     * @return string
+     */
+    public function getCurrentEditorMode(): string
+    {
+        initKcfinder();
+        
+        $session = &App()->session;
 
+        $isEmpty  = $session['htmleditormode'] == 'none';
+        $isInline = $session['htmleditormode'] == 'inline';
+        $isPopUp  = $session['htmleditormode'] == 'popup';
+
+        if ($isEmpty) {
+            $result = '';
+        }
+
+        if ($isInline) {
+            $editorMode = $session['htmleditormode'];
+        } else {
+            $editorMode = App()->getConfig('defaulthtmleditormode');
+        }
+
+        if ($editorMode == 'popup') {
+            $result = this.getPopUpEditor();
+        } else if ($editorMode == 'inline') {
+            $result = this.getInlineEditor();
+        } else {
+            $result = '';
+        }
+        
+        return $result;
+    }
+
+    /**
+     * Returns the PopUp Editor for the CKEditor 4. (Used by vuejs).
+     * 
+     * @return string
+     */
+    private function getPopUpEditor(): string
+    {
+        if (App()->getConfig('uniq_upload_dir')) {
+            $surveyID = 'uniq';
+        }
+
+        $html = '';
+
+        $class = 'editorLink input-group-addon';
+
+        return
+    }
     /****
      * *** A lot of getter function regarding functionalities and views.
      * *** All called via ajax
@@ -230,7 +287,7 @@ class QuestionEditorController extends LSBaseController
      *
      * todo: is this action still in use?? where in the frontend?
      *
-     * @param int $iSurveyId
+     * @param int $iSurveyId Survey ID
      *
      * @return void
      */
@@ -401,10 +458,10 @@ class QuestionEditorController extends LSBaseController
     /**
      * Update the data set in the FE
      *
-     * @param int $iQuestionId
-     * @param string $type
-     * @param int $gid Group id
-     * @param string $question_template
+     * @param int    $iQuestionId       Question ID
+     * @param string $type              Type
+     * @param int    $gid               Group id
+     * @param string $question_template Question Template
      *
      * @return void
      * @throws CException
@@ -453,13 +510,13 @@ class QuestionEditorController extends LSBaseController
     }
 
     /**
-     * @todo document me
+     * Returns General Options.
      *
-     * @param int $iQuestionId
-     * @param string $sQuestionType
-     * @param int $gid
-     * @param boolean $returnArray
-     * @param string $question_template
+     * @param int     $iQuestionId       Question ID
+     * @param string  $sQuestionType     Question Type
+     * @param int     $gid               Group ID
+     * @param boolean $returnArray       Returns Array
+     * @param string  $question_template Question Template
      *
      * @return void|array
      * @throws CException
@@ -481,10 +538,10 @@ class QuestionEditorController extends LSBaseController
      * Action (called by ajaxrequest and returning json)
      * Returns a preformatted json of advanced settings.
      *
-     * @param int $iQuestionId
-     * @param string $sQuestionType
-     * @param boolean $returnArray
-     * @param string $question_template
+     * @param int     $iQuestionId       Question ID
+     * @param string  $sQuestionType     Question Type
+     * @param boolean $returnArray       Returns Array
+     * @param string  $question_template Question Template
      *
      * @return void|array
      * @throws CException
@@ -512,9 +569,9 @@ class QuestionEditorController extends LSBaseController
      * Collect initial question data
      * This either creates a temporary question object, or calls a question object from the database
      *
-     * @param int $iQuestionId
-     * @param int $gid
-     * @param string $type
+     * @param int    $iQuestionId Question ID
+     * @param int    $gid         Group ID
+     * @param string $type        Type
      *
      * @return void
      * @throws CException
@@ -554,7 +611,7 @@ class QuestionEditorController extends LSBaseController
     /**
      * Collect the permissions available for a specific question
      *
-     * @param $iQuestionId
+     * @param int $iQuestionId Question ID
      *
      * @return void
      * @throws CException
@@ -587,11 +644,13 @@ class QuestionEditorController extends LSBaseController
     }
 
     /**
-     * @todo document me.
-     * @todo is this used in frontend somewherer? can't find it
+     * Returns Question Type Information.
      *
-     * @param string $sQuestionType
+     * @param string $sQuestionType Question Type
+     * 
      * @return void
+     * 
+     * @todo is this used in frontend somewherer? can't find it
      */
     public function actionGetQuestionTypeInformation($sQuestionType)
     {
@@ -604,7 +663,8 @@ class QuestionEditorController extends LSBaseController
     /**
      * Renders the top bar definition for questions as JSON document
      *
-     * @param int $qid
+     * @param int $qid Question ID
+     * 
      * @return false|null|string|string[]
      * @throws CException
      */
@@ -659,9 +719,10 @@ class QuestionEditorController extends LSBaseController
      *
      * todo: this should be moved to model ...
      *
-     * @param int $iQuestionId
-     * @param string $sQuestionType
-     * @param int $gid
+     * @param int    $iQuestionId   Question ID
+     * @param string $sQuestionType Question Type
+     * @param int    $gid           Group ID
+     * 
      * @return Question
      * @throws CException
      */
@@ -689,10 +750,10 @@ class QuestionEditorController extends LSBaseController
     /**
      * @todo document me
      *
-     * @param int $iQuestionId
-     * @param string $sQuestionType
-     * @param int $gid
-     * @param string $question_template
+     * @param int    $iQuestionId       Question ID
+     * @param string $sQuestionType     Question Type
+     * @param int    $gid               Group ID
+     * @param string $question_template Question Template
      *
      * @return void|array
      * @throws CException
@@ -713,7 +774,8 @@ class QuestionEditorController extends LSBaseController
      * @todo document me.
      * @todo move this function somewhere else, this should not be part of controller ... (e.g. model)
      *
-     * @param Question $oQuestion
+     * @param Question $oQuestion Question
+     * 
      * @return array
      */
     private function getCompiledQuestionData(&$oQuestion)
@@ -772,9 +834,10 @@ class QuestionEditorController extends LSBaseController
     /**
      * It returns a preformatted array of advanced settings.
      *
-     * @param int $iQuestionId
-     * @param string $sQuestionType
-     * @param string $question_template
+     * @param int    $iQuestionId       Question ID
+     * @param string $sQuestionType     Question Type
+     * @param string $question_template Question Template
+     * 
      * @return array
      * @throws CException
      * @throws Exception
@@ -794,7 +857,7 @@ class QuestionEditorController extends LSBaseController
      *
      * todo: this should be moved to model, not a controller function ...
      *
-     * @param $oQuestion
+     * @param $oQuestion Question
      * @return array
      */
     private function getCompiledSurveyInfo($oQuestion)
@@ -822,8 +885,9 @@ class QuestionEditorController extends LSBaseController
      *
      * todo: move to model or service class
      *
-     * @param array $aQuestionData
-     * @param boolean $subquestion
+     * @param array   $aQuestionData Question Data
+     * @param boolean $subquestion   Is SubQuestion
+     * 
      * @return Question
      * @throws CHttpException
      */
@@ -910,8 +974,9 @@ class QuestionEditorController extends LSBaseController
     /**
      * Method to store and filter questionData for editing a question
      *
-     * @param Question $oQuestion
-     * @param array $aQuestionData
+     * @param Question $oQuestion     Question
+     * @param array    $aQuestionData Question Data
+     * 
      * @return Question
      * @throws CHttpException
      */
@@ -955,8 +1020,9 @@ class QuestionEditorController extends LSBaseController
     /**
      * @todo document me
      *
-     * @param Question $oQuestion
-     * @param array $dataSet
+     * @param Question $oQuestion Question
+     * @param array    $dataSet   Data Set
+     * 
      * @return boolean
      * @throws CHttpException
      */
@@ -979,10 +1045,11 @@ class QuestionEditorController extends LSBaseController
     }
 
     /**
-     * @todo document me
+     * Unparse and set general options.
      *
-     * @param Question $oQuestion
-     * @param array $dataSet
+     * @param Question $oQuestion Question
+     * @param array    $dataSet   Data Set
+     * 
      * @return boolean
      * @throws CHttpException
      */
@@ -1013,10 +1080,11 @@ class QuestionEditorController extends LSBaseController
     }
 
     /**
-     * @todo document me
+     * Unparse and set advanced options.
      *
-     * @param Question $oQuestion
-     * @param array $dataSet
+     * @param Question $oQuestion Question
+     * @param array    $dataSet   Data Set
+     * 
      * @return boolean
      * @throws CHttpException
      */
@@ -1077,8 +1145,8 @@ class QuestionEditorController extends LSBaseController
     /**
      * Copies the default value(s) set for a question
      *
-     * @param Question $oQuestion
-     * @param integer $oldQid
+     * @param Question $oQuestion Question
+     * @param integer  $oldQid    Old Question ID
      *
      * @return boolean
      * @throws CHttpException
@@ -1129,13 +1197,14 @@ class QuestionEditorController extends LSBaseController
     }
 
     /**
-     * @param Question $oQuestion
-     * @param array $dataSet
-     * @param bool $isCopyProcess
+     * Stores Sub Questions.
+     * 
+     * @param Question $oQuestion     Question
+     * @param array    $dataSet       Data Set
+     * @param bool     $isCopyProcess Is Copy Process
+     * 
      * @return boolean
      * @throws CHttpException
-     * @todo document me.
-     *
      */
     private function storeSubquestions(&$oQuestion, $dataSet, $isCopyProcess = false)
     {
@@ -1157,12 +1226,12 @@ class QuestionEditorController extends LSBaseController
     }
 
     /**
-     * @todo document me.
+     * Cleans Sub Questions.
      *
-     * @param Question $oQuestion
-     * @param array $dataSet
+     * @param Question $oQuestion Question
+     * @param array    $dataSet   Data Set
+     * 
      * @return void
-     * @todo PHPDoc description
      */
     private function cleanSubquestions(&$oQuestion, &$dataSet)
     {
@@ -1193,9 +1262,9 @@ class QuestionEditorController extends LSBaseController
     /**
      * @todo document me
      *
-     *
-     * @param Question $oQuestion
-     * @param array $dataSet
+     * @param Question $oQuestion Question
+     * @param array    $dataSet   Data Set
+     * 
      * @return boolean
      * @throws CHttpException
      */
@@ -1218,14 +1287,14 @@ class QuestionEditorController extends LSBaseController
     }
 
     /**
-     * @param Question $oQuestion
-     * @param array $dataSet
-     * @param bool $isCopyProcess
+     * Stores Answer Options.
+     * 
+     * @param Question $oQuestion     Question
+     * @param array    $dataSet       Data Set
+     * @param bool     $isCopyProcess Is Copy Process
+     * 
      * @return boolean
      * @throws CHttpException
-     * @todo document me
-     *
-     *
      */
     private function storeAnswerOptions(&$oQuestion, $dataSet, $isCopyProcess = false)
     {
@@ -1264,10 +1333,11 @@ class QuestionEditorController extends LSBaseController
     }
 
     /**
-     * @todo document me
+     * Cleans Answer Options.
      *
-     * @param Question $oQuestion
-     * @param array $dataSet
+     * @param Question $oQuestion Question
+     * @param array    $dataSet   Data Set
+     *
      * @return void
      */
     private function cleanAnsweroptions(&$oQuestion, &$dataSet)
@@ -1300,9 +1370,9 @@ class QuestionEditorController extends LSBaseController
     /**
      * @todo document me
      *
-     * @param Answer $oAnswer
-     * @param Question $oQuestion
-     * @param array $dataSet
+     * @param Answer   $oAnswer   Answer
+     * @param Question $oQuestion Question
+     * @param array    $dataSet   Data Set
      *
      * @return boolean
      * @throws CHttpException

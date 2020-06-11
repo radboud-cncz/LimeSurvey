@@ -17,7 +17,6 @@
     //Security Checked: POST/GET/SESSION/DB/returnGlobal
     function initKcfinder()
     {
-        return;
         Yii::app()->session['KCFINDER'] = array();
 
         $sAllowedExtensions = implode(' ', array_map('trim', explode(',', Yii::app()->getConfig('allowedresourcesuploads'))));
@@ -109,12 +108,15 @@
 
 
     /**
+     * Prepares the editor script.
+     * 
+     * @param boolean     $load
      * @param CController $controller
+     * 
+     * @return string
      */
     function PrepareEditorScript($load = false, $controller = null)
-    {
-        return;
-                
+    {                   
         App()->getClientScript()->registerPackage('ckeditor'); //
         App()->getClientScript()->registerPackage('ckeditoradditions'); // CKEDITOR in a global sope
         
@@ -129,46 +131,62 @@
         }
     }
 
-    function getEditor($fieldtype, $fieldname, $fieldtext, $surveyID = null, $gID = null, $qID = null, $action = null)
-    {
-
-        return;
-        if (Yii::app()->getConfig('uniq_upload_dir') && !empty($surveyID)){
-            $surveyID = 'uniq';
-        }
-
-        initKcfinder();
-        //error_log("TIBO fieldtype=$fieldtype,fieldname=$fieldname,fieldtext=$fieldtext,surveyID=$surveyID,gID=$gID,qID=$qID,action=$action");
-        $session = &Yii::app()->session;
-
-        if ($session['htmleditormode'] && $session['htmleditormode'] == 'none') {
-            return '';
-        }
-
-
-        if (!$session['htmleditormode'] || ($session['htmleditormode'] != 'inline' && $session['htmleditormode'] != 'popup')) {
-            $htmleditormode = Yii::app()->getConfig('defaulthtmleditormode');
-        } else {
-            $htmleditormode = $session['htmleditormode'];
-        }
-        if ($surveyID && getEmailFormat($surveyID) != 'html' && (substr($fieldtype, 0, 6) === "email_" || substr($fieldtype, 0, 6) === "email-" )) {
-            // email but survey as text email
-            return '';
-        }
-
-        if ($htmleditormode == 'popup' || ($fieldtype == 'editanswer' || $fieldtype == 'addanswer' || $fieldtype == 'editlabel' || $fieldtype == 'addlabel') && (preg_match("/^translate/", $action) == 0)) {
-            return getPopupEditor($fieldtype, $fieldname, $fieldtext, $surveyID, $gID, $qID, $action);
-        } elseif ($htmleditormode == 'inline') {
-            return getInlineEditor($fieldtype, $fieldname, $fieldtext, $surveyID, $gID, $qID, $action);
-        } else {
-            return '';
-        }
+/**
+ * Returns CKEditor Type.
+ * 
+ * @param string $fieldtype FieldType
+ * @param string $fieldname FieldName
+ * @param string $fieldtext FieldText
+ * @param int    $surveyID  Survey ID
+ * @param int    $gID       Group ID
+ * @param int    $qID       Question ID
+ * @param string $action    Action
+ * 
+ * @return string
+ */
+function getEditor(
+    $fieldtype, $fieldname, $fieldtext,
+    $surveyID = null, $gID = null, $qID = null, $action = null
+) {
+    if (App()->getConfig('uniq_upload_dir') && !empty($surveyID)) {
+        $surveyID = 'uniq';
     }
+
+    initKcfinder();
+    $session = &App()->session;
+
+    if ($session['htmleditormode'] && $session['htmleditormode'] == 'none') {
+        return '';
+    }
+
+    if (!$session['htmleditormode'] || ($session['htmleditormode'] != 'inline' && $session['htmleditormode'] != 'popup')) {
+        $htmleditormode = App()->getConfig('defaulthtmleditormode');
+    } else {
+        $htmleditormode = $session['htmleditormode'];
+    }
+
+    if ($surveyID && getEmailFormat($surveyID) != 'html' && (substr($fieldtype, 0, 6) === "email_" || substr($fieldtype, 0, 6) === "email-" )) {
+        // email but survey as text email
+        return '';
+    }
+
+    if ($htmleditormode == 'popup' || ($fieldtype == 'editanswer' || $fieldtype == 'addanswer' || $fieldtype == 'editlabel' || $fieldtype == 'addlabel') && (preg_match("/^translate/", $action) == 0)) {
+        return getPopupEditor(
+            $fieldtype, $fieldname, 
+            $fieldtext, $surveyID,
+            $gID, $qID,
+            $action
+        );
+    } elseif ($htmleditormode == 'inline') {
+        return getInlineEditor($fieldtype, $fieldname, $fieldtext, $surveyID, $gID, $qID, $action);
+    } else {
+        return '';
+    }
+}
 
     function getPopupEditor($fieldtype, $fieldname, $fieldtext, $surveyID = null, $gID = null, $qID = null, $action = null)
     {
-        return;
-        if (Yii::app()->getConfig('uniq_upload_dir') && !empty($surveyID)){
+        if (Yii::app()->getConfig('uniq_upload_dir') && !empty($surveyID)) {
             $surveyID = 'uniq';
         }
 
@@ -176,13 +194,15 @@
         $htmlcode = '';
 
         if ($fieldtype == 'editanswer' ||
-        $fieldtype == 'addanswer' ||
-        $fieldtype == 'editlabel' ||
-        $fieldtype == 'addlabel') {
+            $fieldtype == 'addanswer'  ||
+            $fieldtype == 'editlabel'  ||
+            $fieldtype == 'addlabel'
+        ) {
             $class = "editorLink";
         } else {
             $class = "editorLink input-group-addon";
         }
+
         $htmlcode .= ""
         . "<a href=\"javascript:start_popup_editor('".$fieldname."','".addslashes(htmlspecialchars_decode($fieldtext, ENT_QUOTES))."','".$surveyID."','".$gID."','".$qID."','".$fieldtype."','".$action."')\" id='".$fieldname."_ctrl' class='{$class} btn btn-default btn-xs'>\n"
         . "\t<i class='fa fa-pencil btneditanswerena' id='".$fieldname."_popupctrlena' data-toggle='tooltip' data-placement='bottom' title='".gT("Start HTML editor in a popup window")."'></i>"

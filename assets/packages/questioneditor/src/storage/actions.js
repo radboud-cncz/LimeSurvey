@@ -458,5 +458,22 @@ export default {
                 chain: "AdvancedSettings"
             });
         });
-    }
+    },
+    getCurrentEditorType: () => {
+        return new Promise((resolve, reject) => {
+            let url = LS.createUrl('questionEditor/getCurrentEditorType');
+            ajax.methods
+                .$_get(
+                    url
+                )
+                    .then((result) => {
+                        resolve(result);
+                    })
+                    .catch((error)  => {
+                        console.log('ERROR: ', error);
+                        reject(error);
+                    })
+                
+        });
+    },
 };

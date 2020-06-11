@@ -33,8 +33,8 @@
                             ></lsckeditor> -->
                             <ckeditor
                                 v-if="questionEditSource"
-                                v-model="currentQuestionQuestion"
-                                :editor="editorQuestionObject"
+                                v-model="this.currentEditorType"
+                                :editor="this.currentEditorType"
                                 :config="editorQuestionConfig"
                                 :input="runDebouncedChange">
                             </ckeditor>
@@ -61,15 +61,15 @@
                                     </button>
                                 </div>
                             </div>
-                            <lsckeditor
+                            <!--<lsckeditor
                                 v-if="!helpEditSource"
                                 :editor="editorHelpObject"
                                 v-model="currentQuestionHelp"
                                 v-on:input="runDebouncedChange"
                                 :config="editorHelpConfig"
-                            ></lsckeditor>
+                            ></lsckeditor>-->
+                            <!--v-else-->
                             <aceeditor
-                                v-else
                                 v-model="currentQuestionHelp"
                                 :showLangSelector="false"
                                 :thisId="'helpEditSource'"
@@ -126,7 +126,7 @@ import debounce from "lodash/debounce";
 import isEqual from "lodash/isEqual";
 import merge from "lodash/merge";
 
-import ClassicEditor from "../../../meta/LsCkeditor/src/LsCkEditorClassic.js";
+//import ClassicEditor from "../../../meta/LsCkeditor/src/LsCkEditorClassic.js";
 import Aceeditor from "../helperComponents/AceEditor";
 
 import runAjax from "../mixins/runAjax";
@@ -144,7 +144,8 @@ export default {
     },
     data() {
         return {
-            editorQuestionObject: ClassicEditor,
+            //editorQuestionObject: ClassicEditor,
+            editorQuestionObject: '',
             editorQuestionData: "",
             editorQuestionConfig: {
                 toolbar: [
@@ -180,7 +181,8 @@ export default {
                 "lsExtension:currentFolder":
                     "upload/surveys/" + this.$store.getters.surveyid + "/"
             },
-            editorHelpObject: ClassicEditor,
+            //editorHelpObject: //ClassicEditor,
+            editorHelpObject: '',
             editorHelpData: "",
             editorHelpConfig: {
                 "lsExtension:fieldtype": "editquestion_help",
@@ -207,6 +209,15 @@ export default {
         };
     },
     computed: {
+        currentEditorType: {
+            get() {
+                this.$store.dispatch('getCurrentEditorType');
+                return this.editorQuestionObject;
+            },
+            set(editorType) {
+                this.$store.commit('currentEditorType', editorType);
+            }
+        }, 
         currentQuestionQuestion: {
             get() {
                 return this.$store.state.currentQuestionI10N[
@@ -333,9 +344,6 @@ export default {
             this.helpEditSource = true;
         }
     },
-    mounted() {
-    
-    }
 };
 </script>
 
