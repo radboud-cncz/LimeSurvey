@@ -382,7 +382,9 @@ class Survey extends LSActiveRecord
 
     /**
      * Expires a survey. If the object was invoked using find or new surveyId can be ommited.
-     * @param int $surveyId
+     * 
+     * @param int $surveyId Survey ID
+     * 
      * @return boolean|null
      */
     public function expire($surveyId = null)
@@ -399,7 +401,6 @@ class Survey extends LSActiveRecord
             self::model()->updateByPk($surveyId, array('expires' => $dateTime));
         }
         return null;
-
     }
 
     /** @inheritdoc */
@@ -443,12 +444,6 @@ class Survey extends LSActiveRecord
             'templateConfiguration' => array(self::HAS_ONE, 'TemplateConfiguration', array('sid' => 'sid'))
         );
     }
-
-
-    /*  public function defaultScope()
-    {
-        return array('order'=> $this->getTableAlias().'.sid');
-    }    */
 
     /** @inheritdoc */
     public function scopes()
@@ -634,9 +629,9 @@ class Survey extends LSActiveRecord
     {
         $sLanguages = trim($this->additional_languages);
         if ($sLanguages != '') {
-                    return explode(' ', $sLanguages);
+            return explode(' ', $sLanguages);
         } else {
-                    return array();
+            return array();
         }
     }
 
@@ -702,7 +697,7 @@ class Survey extends LSActiveRecord
         // Without token table : all extra attribute are only saved on $this->attributedescriptions
         $allKnowAttributes = $attdescriptiondata;
         // Without token table : all attribute $this->attributedescriptions AND real attribute. @see issue #13924
-        if($this->getHasTokensTable()){
+        if ($this->getHasTokensTable()) {
             $allKnowAttributes = array_intersect_key(
                 ( $attdescriptiondata + Token::model($this->sid)->getAttributes()),
                 Token::model($this->sid)->getAttributes()
@@ -805,7 +800,11 @@ class Survey extends LSActiveRecord
     }
 
     /**
-     * @param string $value
+     * Sets Google Analytics API Key Setting.
+     * 
+     * @param string $value Google Analytics Key
+     * 
+     * @return void
      */
     public function setGoogleanalyticsapikeysetting($value)
     {
@@ -829,6 +828,11 @@ class Survey extends LSActiveRecord
         }
     }
 
+    /**
+     * Returns Survey Template Configuration.
+     * 
+     * @return TemplateConfiguration
+     */
     public function getSurveyTemplateConfiguration()
     {
         return TemplateConfiguration::getInstance(null, null, $this->sid);
@@ -864,18 +868,20 @@ class Survey extends LSActiveRecord
     /**
      * Get surveymenu configuration
      * This will be made bigger in future releases, but right now it only collects the default menu-entries
+     * 
+     * @param string $position Position
+     * 
+     * @return string
      */
     public function getSurveyMenus($position = '')
     {
         $collapsed = $position==='collapsed';
         //Get the default menus
-        $aDefaultSurveyMenus = Surveymenu::model()->getDefaultSurveyMenus($position,$this);
+        $aDefaultSurveyMenus = Surveymenu::model()->getDefaultSurveyMenus($position, $this);
         //get all survey specific menus
         $aThisSurveyMenues = Surveymenu::model()->createSurveymenuArray($this->surveymenus, $collapsed, $this, $position);
         //merge them
         $aSurveyMenus = $aDefaultSurveyMenus + $aThisSurveyMenues;
-        // var_dump($aDefaultSurveyMenus);
-        // var_dump($aThisSurveyMenues);
 
         return $aSurveyMenus;
     }
@@ -891,17 +897,17 @@ class Survey extends LSActiveRecord
         if (!isset($aData['datecreated'])) {
             $aData['datecreated'] = date('Y-m-d H:i:s');
         }
-        if(isset($aData['wishSID'])) {
+        if (isset($aData['wishSID'])) {
             $aData['sid'] = $aData['wishSID'];
             unset($aData['wishSID']);
         }
-        if(empty($aData['sid'])) {
+        if (empty($aData['sid'])) {
             $aData['sid'] = intval(randomChars(6, '123456789'));
         }
         $survey = new self;
         /* Remove NULL value (default for not submitted data ) : insert must leave default if not set in POST */
         $aData = array_filter($aData, function($value) {
-                return !is_null($value);
+            return !is_null($value);
         });
         foreach ($aData as $k => $v) {
             $survey->$k = $v;
@@ -909,11 +915,11 @@ class Survey extends LSActiveRecord
 
         $attempts = 0;
         /* Validate sid : > 1 and unique */
-        while(!$survey->validate(array('sid'))) {
+        while (!$survey->validate(array('sid'))) {
             $attempts++;
             $survey->sid = intval(randomChars(6, '123456789'));
             /* If it's happen : there are an issue in server … (or in randomChars function …) */
-            if($attempts > 50) {
+            if ($attempts > 50) {
                 throw new Exception("Unable to get a valid survey id after 50 attempts");
             }
         }
