@@ -1,6 +1,5 @@
-<?php if (!defined('BASEPATH')) {
-    exit('No direct script access allowed');
-}
+<?php
+
 /*
 * LimeSurvey
 * Copyright (C) 2007-2017 The LimeSurvey Project Team / Carsten Schmitz
@@ -15,13 +14,13 @@
 */
 
 /**
- * Export Action
- *
- * This controller performs export actions
- *
- * @package       LimeSurvey
- * @subpackage    Backend
- */
+* Export Action
+*
+* This controller performs export actions
+*
+* @package       LimeSurvey
+* @subpackage    Backend
+*/
 class export extends Survey_Common_Action
 {
 
@@ -52,7 +51,7 @@ class export extends Survey_Common_Action
     public function surveyarchives()
     {
         if (!Permission::model()->hasGlobalPermission('superadmin', 'read')) {
-            safeDie('Access denied.');
+                   safeDie('Access denied.');
         }
 
         $aSurveyIDs = $this->session->flashdata('sids');
@@ -168,6 +167,9 @@ class export extends Survey_Common_Action
         $surveybaselang = $survey->language;
         $exportoutput = "";
 
+        // Avoid randomization of the fieldmap
+        killSurveySession($iSurveyID);
+
         // Get info about the survey
         $thissurvey = getSurveyInfo($iSurveyID);
 
@@ -176,7 +178,7 @@ class export extends Survey_Common_Action
         $exports = $resultsService->getExports();
 
         if (!$sExportType) {
-            $aFieldMap = createFieldMap($survey, 'full', false, false, $survey->language);
+            $aFieldMap = createFieldMap($survey, 'full', true, false, $survey->language);
 
             if ($thissurvey['savetimings'] === "Y") {
                 //Append survey timings to the fieldmap array
@@ -262,9 +264,10 @@ class export extends Survey_Common_Action
             );
 
             $data['sidemenu']['state'] = false;
-            $data['menu']['edition'] = true;
-            $data['menu']['export'] = true;
-            $data['menu']['close'] = true;
+
+            $data['topBar']['name'] = 'baseTopbar_view';
+            $data['topBar']['showExportButton'] = true;
+            $data['topBar']['showCloseButton'] = true;
 
             $data['display']['menu_bars']['browse'] = gT('Browse responses'); // browse is independent of the above
             $data['title_bar']['title'] = gT('Browse responses') . ': ' . $survey->currentLanguageSettings->surveyls_title;
@@ -326,7 +329,7 @@ class export extends Survey_Common_Action
         }
 
         if (Yii::app()->request->getPost('response_id')) {
-            $sFilter = "{{survey_{$iSurveyID}}}.id=" . (int) Yii::app()->request->getPost('response_id');
+                    $sFilter = "{{survey_{$iSurveyID}}}.id=" . (int) Yii::app()->request->getPost('response_id');
         } elseif (App()->request->getQuery('statfilter') && is_array(Yii::app()->session['statistics_selects_' . $iSurveyID])) {
             $sFilter = Yii::app()->session['statistics_selects_' . $iSurveyID];
         } else {
@@ -428,8 +431,8 @@ class export extends Survey_Common_Action
 
             $data['sidemenu']['state'] = false;
 
-            $data['menu']['edition'] = true;
-            $data['menu']['close'] = true;
+            $data['topBar']['name'] = 'baseTopbar_view';
+            $data['topBar']['showCloseButton'] = true;
 
             $this->_renderWrappedTemplate('export', 'spss_view', $data);
             return;
@@ -456,10 +459,8 @@ class export extends Survey_Common_Action
                 echo "\xEF\xBB\xBF";
             }
             $sNoAnswerValue = Yii::app()->getRequest()->getPost('noanswervalue');
-            if (!empty($sNoAnswerValue)) {
-                $sNoAnswerValue = '\'' . $sNoAnswerValue . '\'';
-            }
-            SPSSExportData($iSurveyID, $iLength, $sNoAnswerValue, '\'', false, $sLanguage);
+            $sEmptyAnswerValue = Yii::app()->getRequest()->getPost('emptyanswervalue');
+            SPSSExportData($iSurveyID, $iLength, $sNoAnswerValue, $sEmptyAnswerValue, '\'', false, $sLanguage);
 
             App()->end();
         }
@@ -482,17 +483,18 @@ class export extends Survey_Common_Action
             echo "SHOW LOCALE.\n";
             echo "PRESERVE LOCALE.\n";
             echo "SET LOCALE='en_UK'.\n";
+            echo "SET DECIMAL=DOT.\n";
 
             echo "GET DATA\n"
-                . " /TYPE=TXT\n"
-                . " /FILE='survey_" . $iSurveyID . "_SPSS_data_file.dat'\n"
-                . " /DELCASE=LINE\n"
-                . " /DELIMITERS=\",\"\n"
-                . " /QUALIFIER=\"'\"\n"
-                . " /ARRANGEMENT=DELIMITED\n"
-                . " /FIRSTCASE=1\n"
-                . " /IMPORTCASE=ALL\n"
-                . " /VARIABLES=";
+            . " /TYPE=TXT\n"
+            . " /FILE='survey_" . $iSurveyID . "_SPSS_data_file.dat'\n"
+            . " /DELCASE=LINE\n"
+            . " /DELIMITERS=\",\"\n"
+            . " /QUALIFIER=\"'\"\n"
+            . " /ARRANGEMENT=DELIMITED\n"
+            . " /FIRSTCASE=1\n"
+            . " /IMPORTCASE=ALL\n"
+            . " /VARIABLES=";
 
             foreach ($fields as $field) {
                 if ($field['SPSStype'] == 'DATETIME23.2') {
@@ -504,7 +506,7 @@ class export extends Survey_Common_Action
             }
 
             echo ".\nCACHE.\n"
-                . "EXECUTE.\n";
+            . "EXECUTE.\n";
 
             //Create the variable labels:
             echo "*Define Variable Properties.\n";
@@ -549,6 +551,18 @@ class export extends Survey_Common_Action
                             echo " $str \"{$answer['value']}\".\n";
                         }
                     }
+                }
+            }
+
+            // Add instructions to change variable type and recode 'Other' option.
+            // This is needed when all answer option codes are numeric but the question has 'Other' enabled,
+            // because the variable is initialy set as alphanumeric in order to hold the '-oth-' value. See issue #16939
+            foreach ($fields as $field) {
+                if (isset($field['needsAlterType'])) {
+                    echo "RECODE {$field['id']} (\"-oth-\" = \"666666\").\n";
+                    echo "EXECUTE.\n";
+                    echo "ADD VALUE LABELS {$field['id']} 666666 \"other\".\n";
+                    echo "ALTER TYPE {$field['id']} (F6.0).\n";
                 }
             }
 
@@ -599,7 +613,7 @@ class export extends Survey_Common_Action
         //Exports all responses to a survey in special "Verified Voting" format.
         if (!Permission::model()->hasSurveyPermission($iSurveyId, 'responses', 'export')) {
             Yii::app()->session['flashmessage'] = gT("You do not have permission to access this page.");
-            $this->getController()->redirect($this->getController()->createUrl("/admin/survey/sa/view/surveyid/{$iSurveyId}"));
+            $this->getController()->redirect($this->getController()->createUrl("/surveyAdministration/view/surveyid/{$iSurveyId}"));
         }
 
         if ($subaction != "export") {
@@ -621,12 +635,12 @@ class export extends Survey_Common_Action
             $aData['display']['menu_bars']['browse'] = gT('Browse responses'); // browse is independent of the above
             $aData['title_bar']['title'] = gT('Browse responses') . ': ' . $survey->currentLanguageSettings->surveyls_title;
             $aData['subaction'] = gt('Export a VV survey file');
-            $aData['topBar']['type'] = 'responses';
 
             $aData['sidemenu']['state'] = false;
-            $aData['menu']['edition'] = true;
-            $aData['menu']['export'] = true;
-            $aData['menu']['close'] = true;
+            
+            $aData['topBar']['name'] = 'baseTopbar_view';
+            $aData['topBar']['showExportButton'] = true;
+            $aData['topBar']['showCloseButton'] = true;
 
             $this->_renderWrappedTemplate('export', 'vv_view', $aData);
         } elseif (isset($iSurveyId) && $iSurveyId) {
@@ -761,7 +775,7 @@ class export extends Survey_Common_Action
             $zipdirs = array();
             foreach (array('files', 'flash', 'images') as $zipdir) {
                 if (is_dir($resourcesdir . $zipdir)) {
-                    $zipdirs[] = $resourcesdir . $zipdir . '/';
+                                    $zipdirs[] = $resourcesdir . $zipdir . '/';
                 }
             }
             if ($zip->create($zipdirs, PCLZIP_OPT_REMOVE_PATH, $resourcesdir) === 0) {
@@ -886,7 +900,7 @@ class export extends Survey_Common_Action
 
                 // Specific to each kind of export
                 switch ($sExportType) {
-                        // Export archives for active surveys
+                    // Export archives for active surveys
                     case 'archive':
                         if ($oSurvey->isActive) {
                             $archiveName = $this->_exportarchive($iSurveyID, false);
@@ -906,7 +920,7 @@ class export extends Survey_Common_Action
                             $aResults[$iSurveyID]['error'] = gT("Not active.");
                         }
                         break;
-                        // Export printable archives for all selected surveys
+                    // Export printable archives for all selected surveys
                     case 'printable':
                         $archiveName = $this->_exportPrintableHtmls($iSurveyID, false);
                         if (is_file($archiveName)) {
@@ -922,7 +936,7 @@ class export extends Survey_Common_Action
                         }
                         break;
 
-                        // Export structure for survey
+                    // Export structure for survey
                     default:
                         $aResults[$iSurveyID]['result'] = true;
                         $bArchiveIsEmpty                = false;
@@ -1025,7 +1039,7 @@ class export extends Survey_Common_Action
 
                 return;
             } else {
-                return ($aZIPFileName);
+                return($aZIPFileName);
             }
         }
     }
@@ -1039,10 +1053,10 @@ class export extends Survey_Common_Action
     {
         $zip->add(
             array(
-                array(
-                    PCLZIP_ATT_FILE_NAME => $name,
-                    PCLZIP_ATT_FILE_NEW_FULL_NAME => $full_name
-                )
+            array(
+            PCLZIP_ATT_FILE_NAME => $name,
+            PCLZIP_ATT_FILE_NEW_FULL_NAME => $full_name
+            )
             )
         );
     }
@@ -1150,7 +1164,7 @@ class export extends Survey_Common_Action
         $aData['surveyid'] = $iSurveyID;
         $aData['slangs'] = Survey::model()->findByPk($iSurveyID)->additionalLanguages;
         $aData['baselang'] = Survey::model()->findByPk($iSurveyID)->language;
-        $aData['surveybar']['closebutton']['url'] = 'admin/survey/sa/view/surveyid/' . $iSurveyID; // Close button
+        $aData['surveybar']['closebutton']['url'] = 'surveyAdministration/view/surveyid/' . $iSurveyID; // Close button
         $aData['sidemenu']['state'] = false;
         $aData['title_bar']['subaction'] = gt('queXML PDF export');
         $aData['subaction'] = gt('queXML PDF export');
@@ -1300,7 +1314,7 @@ class export extends Survey_Common_Action
             unlink($zipfile);
             Yii::app()->end();
         }
-        //needed for massive actios 
+        //needed for massive actios
         return $zipfile;
     }
 
@@ -1358,14 +1372,18 @@ class export extends Survey_Common_Action
 
     private function _xmlToJson($fileContents)
     {
-        $bOldEntityLoaderState = libxml_disable_entity_loader(true); // @see: http://phpsecurity.readthedocs.io/en/latest/Injection-Attacks.html#xml-external-entity-injection
+        if (\PHP_VERSION_ID < 80000) {
+            $bOldEntityLoaderState = libxml_disable_entity_loader(true); // @see: http://phpsecurity.readthedocs.io/en/latest/Injection-Attacks.html#xml-external-entity-injection
+        }
 
         $fileContents          = str_replace(array("\n", "\r", "\t"), '', $fileContents);
         $fileContents          = trim(str_replace('"', "'", $fileContents));
         $simpleXml             = simplexml_load_string($fileContents, 'SimpleXMLElement', LIBXML_NOCDATA);
         $json                  = json_encode($simpleXml);
 
-        libxml_disable_entity_loader($bOldEntityLoaderState); // Put back entity loader to its original state, to avoid contagion to other applications on the server
+        if (\PHP_VERSION_ID < 80000) {
+            libxml_disable_entity_loader($bOldEntityLoaderState); // Put back entity loader to its original state, to avoid contagion to other applications on the server
+        }
         return $json;
     }
 

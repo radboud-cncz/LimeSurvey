@@ -136,7 +136,7 @@ foreach ($tokendata as $Key => $Value) {
                         </div>
                         <?php endif; ?>
                     </div>
-                    <input class='form-control hidden YesNoDateHidden' type='text' size='20' id='completed' name='completed' value="<?php if (isset($completed)) {echo $completed; } else {echo " N "; }?>" />
+                    <input class='form-control hidden YesNoDateHidden' type='text' size='20' id='completed' name='completed' value="<?php if (isset($completed)) {echo $completed; } else {echo "N"; }?>" />
                 </div>
 
             </div>
@@ -287,13 +287,13 @@ foreach ($tokendata as $Key => $Value) {
                     <div id="sent-date-container" data-parent="#sent-switch" class="selector__date-container_hidden date-container" <?php if (!$bSwitchValue){ echo "style='display:none;'"; }?> >
                         <!-- Sent Date -->
                         <div id="sent-date_datetimepicker" class="input-group date">
-                        <input class="YesNoDatePicker form-control" id="sent-date" type="text" value="<?php echo isset($sent) && $sent!='N' ? convertToGlobalSettingFormat($sent,true) : ''?>" name="sent-date" data-date-format="<?php echo $dateformatdetails['jsdate']; ?> HH:mm">
+                        <input class="YesNoDatePicker form-control" id="sent-date" type="text" value="<?php echo isset($sent) ? $sent : ''?>" name="sent-date" data-date-format="<?php echo $dateformatdetails['jsdate']; ?> HH:mm">
                         <span class="input-group-addon"><span class="fa fa-calendar"></span></span>
                         </div>
                     </div>
                 </div>
                 </div>
-                <input class='form-control hidden YesNoDateHidden' type='text' size='20' id='sent' name='sent' value="<?php if (isset($sent) && $sent!='N') {echo convertToGlobalSettingFormat($sent,true); } else {echo " N "; }?>" />
+                <input class='form-control hidden YesNoDateHidden' type='text' size='20' id='sent' name='sent' value="<?php if (isset($sent)) {echo $sent; } else {echo "N"; }?>" />
             </div>
             </div>
             <div class="form-group">
@@ -319,10 +319,10 @@ foreach ($tokendata as $Key => $Value) {
                     <?php } else { ?>
                         <?php
                             $this->widget('yiiwheels.widgets.switch.WhSwitch', array(
-                            'name' => "sent-switch",
-                            'id'=>"sent-switch",
+                            'name' => "remind-switch",
+                            'id'=>"remind-switch",
                             'htmlOptions'=>array('class'=>"YesNoSwitch action_toggle_bootstrap_switch"),
-                            'value' => $bSwitchValue,
+                            'value' => $bRemindSwitchValue,
                             'onLabel'=>gT('Yes'),
                             'offLabel' => gT('No')));
                         ?>
@@ -333,13 +333,13 @@ foreach ($tokendata as $Key => $Value) {
                     <div id="remind-date-container" data-parent="#remind-switch" class="selector__date-container_hidden date-container" <?php if (!$bRemindSwitchValue){ echo "style='display:none;'"; }?> >
 
                         <div id="remind-date_datetimepicker" class="input-group date">
-                        <input class="YesNoDatePicker form-control" id="remind-date" type="text" value="<?php echo isset($remindersent) && $sent!='N' ? convertToGlobalSettingFormat($remindersent,true) : ''?>" name="remind-date" data-date-format="<?php echo $dateformatdetails['jsdate']; ?> HH:mm">
+                        <input class="YesNoDatePicker form-control" id="remind-date" type="text" value="<?php echo isset($remindersent) && $remindersent!='N' ? $remindersent : ''?>" name="remind-date" data-date-format="<?php echo $dateformatdetails['jsdate']; ?> HH:mm">
                         <span class="input-group-addon"><span class="fa fa-calendar"></span></span>
                         </div>
                     </div>
                 </div>
                 </div>
-                <input class='form-control hidden YesNoDateHidden' type='text' size='20' id='remindersent' name='remindersent' value="<?php if (isset($remindersent) && $sent!='N') {echo convertToGlobalSettingFormat($remindersent,true); } else {echo " N "; }?>" />
+                <input class='form-control hidden YesNoDateHidden' type='text' size='20' id='remindersent' name='remindersent' value="<?php if (isset($remindersent) && $remindersent!='N') {echo $remindersent; } else {echo "N"; }?>" />
             </div>
                 
             <!-- Reminder count, Uses left -->

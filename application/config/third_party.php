@@ -29,7 +29,7 @@ return array(
         'position' =>CClientScript::POS_HEAD,
         'js' => array(
             'jquery-3.5.1'.$minVersion.'.js',
-            'jquery-migrate-3.3.0'.$minVersion.'.js',
+            'jquery-migrate-3.3.2'.$minVersion.'.js',
         )
     ),
 
@@ -348,6 +348,9 @@ return array(
     'jquery-datatable' => array(
         'basePath' => 'third_party.datatables',
         'position' => CClientScript::POS_BEGIN,
+        'css' => array(
+            'css/datatables'.$minVersion.'.css'
+        ),
         'js' => array(
             'js/jquery.dataTables'.$minVersion.'.js',
             'js/dataTables.bootstrap'.$minVersion.'.js'
